@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres
+    container_name: formaura
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: formaura
+      POSTGRES_DB: formaura
+    volumes:
+      - formaura-postgres:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: formaura-pgadmin
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: dev@formaura.com
+      PGADMIN_DEFAULT_PASSWORD: password1
+    volumes:
+      - formaura-pgadmin:/var/lib/pgadmin
+
+volumes:
+  formaura-postgres:
+  formaura-pgadmin:
