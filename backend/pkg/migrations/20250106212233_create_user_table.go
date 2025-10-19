@@ -3,8 +3,8 @@ package migrations
 import (
 	"context"
 	"database/sql"
+	"formaura/pkg/bcrypt"
 	user_repo "formaura/pkg/repositories/user"
-	"formaura/pkg/services/bcrypt"
 	"time"
 
 	"github.com/pressly/goose/v3"

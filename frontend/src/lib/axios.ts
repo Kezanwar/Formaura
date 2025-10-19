@@ -18,7 +18,9 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   (error: AxiosError<APIErrorResp>) => {
     const m = error?.response?.data?.message || genericErrorMsg;
     const err = {

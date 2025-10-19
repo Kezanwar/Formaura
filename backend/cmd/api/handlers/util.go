@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"formaura/pkg/constants"
 	user_repo "formaura/pkg/repositories/user"
+	"formaura/pkg/validate"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func GetUserFromCtx(r *http.Request) (*user_repo.Model, error) {
@@ -15,5 +18,20 @@ func GetUserFromCtx(r *http.Request) (*user_repo.Model, error) {
 	}
 
 	return usr, nil
+
+}
+
+func GetUUIDFromParams(r *http.Request) (*string, error) {
+	vars := mux.Vars(r)
+	formUuid := vars["uuid"]
+	if formUuid == "" {
+		return nil, fmt.Errorf("UUID is required")
+	}
+
+	if !validate.ValidateUUID(formUuid) {
+		return nil, fmt.Errorf("UUID is required")
+	}
+
+	return &formUuid, nil
 
 }

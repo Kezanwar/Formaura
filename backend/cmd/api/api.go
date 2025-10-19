@@ -7,6 +7,7 @@ import (
 	user_memory_cache "formaura/pkg/cache/user_memory"
 	"formaura/pkg/email"
 	"formaura/pkg/middleware"
+	form_repo "formaura/pkg/repositories/form"
 	user_repo "formaura/pkg/repositories/user"
 	"log"
 	"net/http"
@@ -31,9 +32,11 @@ func NewAPI(ctx context.Context, pool *pgxpool.Pool, client *http.Client) (*http
 
 	//repositories
 	userRepo := user_repo.NewUserRepo(pool)
+	formRepo := form_repo.NewFormRepo(pool)
 
 	//handlers
-	authHandler := handlers.NewAuthHandler(userRepo, userCache, emailClient)
+	authHandlers := handlers.NewAuthHandler(userRepo, userCache, emailClient)
+	formHandlers := handlers.NewFormHandler(formRepo, userCache, emailClient)
 
 	authFresh := middleware.AuthAlwaysFreshMiddleware(userRepo, userCache)
 	authCached := middleware.AuthCachedMiddleware(userRepo, userCache)
@@ -48,7 +51,8 @@ func NewAPI(ctx context.Context, pool *pgxpool.Pool, client *http.Client) (*http
 		//main router
 		api,
 		//handlers
-		authHandler,
+		authHandlers,
+		formHandlers,
 		//middleware
 		authFresh,
 		authCached,

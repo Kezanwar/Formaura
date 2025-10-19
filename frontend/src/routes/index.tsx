@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, useRoutes, type RouteObject } from 'react-router-dom';
+import { useRoutes, type RouteObject } from 'react-router-dom';
 
 import Register from '@app/pages/guest/register';
 import Signin from '@app/pages/guest/sign-in';
@@ -12,6 +12,8 @@ import AuthGuard from '@app/hocs/auth-guard';
 // import BasicLayout from '@app/layouts/basic';
 // import GuestLayout from '@app/layouts/guest';
 import ConfirmOTP from '@app/pages/basic/confirm-otp';
+import ManageForms from '@app/pages/dashboard/forms/manage';
+import EditForm from '@app/pages/dashboard/forms/edit';
 
 const paths: RouteObject[] = [
   {
@@ -23,18 +25,18 @@ const paths: RouteObject[] = [
         element: <Home />
       },
       {
-        path: 'forms/:id/edit',
-        element: <Dummy page="Edit a form" />
+        path: 'forms/:uuid/edit',
+        element: <EditForm />
       },
       {
         path: 'forms/new',
         element: (
-          <Dummy page="Generate new form then redirect to /forms/<id>/create" />
+          <Dummy page="Generate new form then redirect to /forms/<uuid>/create" />
         )
       },
       {
         path: 'forms/manage',
-        element: <Dummy page="List view of all forms" />
+        element: <ManageForms />
       }
     ]
   },

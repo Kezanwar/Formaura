@@ -5,10 +5,10 @@ import (
 	user_repo "formaura/pkg/repositories/user"
 
 	"formaura/pkg/email"
+	"formaura/pkg/jwt"
 	"formaura/pkg/otp"
 	"formaura/pkg/output"
-	"formaura/pkg/services/jwt"
-	"formaura/pkg/services/validate"
+	"formaura/pkg/validate"
 
 	"encoding/json"
 	"fmt"

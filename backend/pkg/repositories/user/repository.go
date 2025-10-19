@@ -3,8 +3,8 @@ package user_repo
 import (
 	"context"
 	"fmt"
+	"formaura/pkg/bcrypt"
 	"formaura/pkg/db"
-	"formaura/pkg/services/bcrypt"
 	"time"
 
 	"github.com/georgysavva/scany/pgxscan"

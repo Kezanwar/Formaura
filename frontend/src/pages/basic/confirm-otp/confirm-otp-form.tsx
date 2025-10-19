@@ -28,7 +28,7 @@ const ConfirmOTPForm = observer(() => {
 
   const handleSubmitOTP = async () => {
     try {
-      store.ui.setIsLoading(true);
+      store.ui.addLoading();
       const res = await confirmOTP(otp);
       store.auth.authenticate(res.data);
       nav('/');
@@ -42,7 +42,7 @@ const ConfirmOTPForm = observer(() => {
         })
       );
     } finally {
-      store.ui.setIsLoading(false);
+      store.ui.removeLoading();
     }
   };
 

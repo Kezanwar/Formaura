@@ -1,8 +1,8 @@
 package user_repo
 
 import (
+	"formaura/pkg/bcrypt"
 	"formaura/pkg/otp"
-	"formaura/pkg/services/bcrypt"
 	"time"
 )
 

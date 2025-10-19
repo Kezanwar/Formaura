@@ -1,18 +1,23 @@
 import { observable, action, makeObservable } from 'mobx';
+import type { RootStore } from '..';
 
 type Theme = 'light' | 'dark';
 
 class UIStore {
+  rootStore: RootStore;
   theme: Theme = 'dark';
-  isLoading: boolean = false;
+  isLoading: number = 0;
 
-  constructor() {
+  constructor(rootStore: RootStore) {
     makeObservable(this, {
       theme: observable,
       setTheme: action,
       isLoading: observable,
-      setIsLoading: action
+      addLoading: action,
+      removeLoading: action
     });
+
+    this.rootStore = rootStore;
 
     const saved = localStorage.getItem('$MobX-theme') as Theme;
     if (saved) {
@@ -30,8 +35,12 @@ class UIStore {
     localStorage.setItem('$MobX-theme', theme);
   }
 
-  setIsLoading(isLoading: boolean) {
-    this.isLoading = isLoading;
+  addLoading() {
+    this.isLoading = this.isLoading + 1;
+  }
+
+  removeLoading() {
+    this.isLoading = Math.max(0, this.isLoading - 1);
   }
 }
 

@@ -11,7 +11,7 @@ type Props = { children: ReactNode };
 const ReactQueryProvider: FC<Props> = ({ children }) => {
   return (
     <QueryClientProvider client={queryClient}>
-      {IS_DEV && <ReactQueryDevtools />}
+      {/* {IS_DEV && <ReactQueryDevtools />} */}
       {children}
     </QueryClientProvider>
   );

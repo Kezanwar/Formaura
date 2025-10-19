@@ -1,37 +1,13 @@
 import {
-  // Folder,
-  // Forward,
-  // MoreHorizontal,
-  // Trash2,
-  type LucideIcon
-} from 'lucide-react';
-
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuSeparator,
-//   DropdownMenuTrigger
-// } from '@app/components/ui/dropdown-menu';
-import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
-  // SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem
-  // useSidebar
 } from '@app/components/ui/sidebar';
+import type { NavItem } from '@app/types/sidebar';
 
-function NavAccount({
-  account
-}: {
-  account: {
-    name: string;
-    url: string;
-    icon: LucideIcon;
-  }[];
-}) {
+function NavAccount({ account }: { account: NavItem[] }) {
   // const { isMobile } = useSidebar();
 
   return (
@@ -39,11 +15,11 @@ function NavAccount({
       <SidebarGroupLabel>Account</SidebarGroupLabel>
       <SidebarMenu>
         {account.map((item) => (
-          <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton tooltip={item.name} asChild>
+          <SidebarMenuItem key={item.title}>
+            <SidebarMenuButton tooltip={item.title} asChild>
               <a href={item.url}>
-                <item.icon />
-                <span>{item.name}</span>
+                {item.icon && <item.icon className={item.iconClassName} />}
+                <span>{item.title}</span>
               </a>
             </SidebarMenuButton>
             {/* <DropdownMenu>

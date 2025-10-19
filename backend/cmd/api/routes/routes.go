@@ -12,14 +12,18 @@ func Register(
 	//router
 	r *mux.Router,
 	//handlers
-	authHandler *handlers.AuthHandler,
+	authHandlers *handlers.AuthHandler,
+	formHandlers *handlers.FormHandler,
 
 	//middlewares
 	authFresh middleware.Middleware,
 	authCached middleware.Middleware) {
 
 	output.MakeSubRouter(r, "/auth", func(sr *mux.Router) {
-		AuthRoutes(sr, authHandler, authCached)
+		AuthRoutes(sr, authHandlers, authCached)
+	})
+	output.MakeSubRouter(r, "/form", func(sr *mux.Router) {
+		FormRoutes(sr, formHandlers, authCached)
 	})
 
 }

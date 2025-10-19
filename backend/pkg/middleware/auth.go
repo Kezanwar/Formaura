@@ -4,11 +4,11 @@ import (
 	user_memory_cache "formaura/pkg/cache/user_memory"
 	"formaura/pkg/constants"
 	user_repo "formaura/pkg/repositories/user"
+	"formaura/pkg/validate"
 
 	"context"
+	"formaura/pkg/jwt"
 	"formaura/pkg/output"
-	"formaura/pkg/services/jwt"
-	"formaura/pkg/services/uuid"
 	"net/http"
 )
 
@@ -28,7 +28,7 @@ func AuthCachedMiddleware(repo user_repo.Repository, cache *user_memory_cache.Ca
 			}
 
 			id, ok := parsed["uuid"].(string)
-			if !ok || !uuid.Validate(id) {
+			if !ok || !validate.ValidateUUID(id) {
 				output.WriteJson(w, r, http.StatusForbidden, output.MessageResponse{Message: "Auth token invalid"})
 				return
 			}
@@ -69,7 +69,7 @@ func AuthAlwaysFreshMiddleware(repo user_repo.Repository, cache *user_memory_cac
 			}
 
 			id, ok := parsed["uuid"].(string)
-			if !ok || !uuid.Validate(id) {
+			if !ok || !validate.ValidateUUID(id) {
 				output.WriteJson(w, r, http.StatusForbidden, output.MessageResponse{Message: "Auth token invalid"})
 				return
 			}

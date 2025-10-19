@@ -33,7 +33,7 @@ const LoginForm: FC = ({ ...props }) => {
 
   const onSubmit = async (data: TLoginForm) => {
     try {
-      store.ui.setIsLoading(true);
+      store.ui.addLoading();
       const res = await postSignIn(data);
       store.auth.authenticate(res.data);
       nav(state?.to || '/');
@@ -48,7 +48,7 @@ const LoginForm: FC = ({ ...props }) => {
       );
       store.auth.unauthenticate();
     } finally {
-      store.ui.setIsLoading(false);
+      store.ui.removeLoading();
     }
   };
 

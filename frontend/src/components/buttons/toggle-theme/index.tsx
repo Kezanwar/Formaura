@@ -17,7 +17,7 @@ const ToggleTheme = observer(() => {
       aria-label="Toggle theme"
       className="active:scale-90"
     >
-      {store.ui.theme === 'light' ? (
+      {store.ui.theme === 'dark' ? (
         <Sun className="text-foreground size-5" />
       ) : (
         <Moon className="text-foreground size-5" />

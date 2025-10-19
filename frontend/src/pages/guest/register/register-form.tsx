@@ -42,7 +42,7 @@ const RegisterForm = observer(() => {
 
   const onAccept = async () => {
     try {
-      store.ui.setIsLoading(true);
+      store.ui.addLoading();
       const res = await postRegister(dataRef.current!);
       store.auth.authenticate(res.data);
       nav('/');
@@ -57,7 +57,7 @@ const RegisterForm = observer(() => {
       );
       store.auth.unauthenticate();
     } finally {
-      store.ui.setIsLoading(false);
+      store.ui.removeLoading();
       dataRef.current = null;
     }
   };
