@@ -16,7 +16,7 @@ type Repository interface {
 	GetByID(ctx context.Context, id int) (*FormModel, error)
 	GetBasicListingByUserID(ctx context.Context, id int) ([]*FormModel, error)
 	GetDetailedListingByUserID(ctx context.Context, id int) ([]*FormModel, error)
-	UpdateFormMeta(ctx context.Context, id int, name, description string) (*FormModel, error)
+	UpdateFormMeta(ctx context.Context, id int, name, description string, status *int16) (*FormModel, error)
 	IncrementViews(ctx context.Context, uuid string) error
 	Delete(ctx context.Context, uuid string) error
 }
@@ -174,19 +174,34 @@ func (r *FormRepository) GetDetailedListingByUserID(ctx context.Context, id int)
 
 	return forms, nil
 }
-func (r *FormRepository) UpdateFormMeta(ctx context.Context, id int, name, description string) (*FormModel, error) {
+func (r *FormRepository) UpdateFormMeta(ctx context.Context, id int, name, description string, status *int16) (*FormModel, error) {
 	now := time.Now()
 	fmt.Println(description)
-	query := `
-		UPDATE forms 
-		SET name=$1, description=$2, updated_at=$3 
-		WHERE id=$4
-		RETURNING *
-	`
+
+	var query string
+	var args []interface{}
+
+	if status != nil {
+		query = `
+			UPDATE forms
+			SET name=$1, description=$2, status=$3, updated_at=$4
+			WHERE id=$5
+			RETURNING *
+		`
+		args = []interface{}{name, description, *status, now, id}
+	} else {
+		query = `
+			UPDATE forms
+			SET name=$1, description=$2, updated_at=$3
+			WHERE id=$4
+			RETURNING *
+		`
+		args = []interface{}{name, description, now, id}
+	}
 
 	var form FormModel
 
-	err := pgxscan.Get(ctx, r.db, &form, query, name, description, now, id)
+	err := pgxscan.Get(ctx, r.db, &form, query, args...)
 
 	if err != nil {
 		return nil, fmt.Errorf("form.Update query: %w", err)
