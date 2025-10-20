@@ -64,7 +64,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               url: 'forms/manage'
             },
             {
-              title: 'Create',
+              title: 'Add New',
               method: () => handleCreateNewForm(nav)
             }
           ]

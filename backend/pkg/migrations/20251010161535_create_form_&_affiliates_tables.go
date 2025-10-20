@@ -20,6 +20,8 @@ func upCreateFormsTables(ctx context.Context, tx *sql.Tx) error {
 		name VARCHAR(255) NOT NULL,
 		description TEXT,
 		form_data JSONB NOT NULL,
+		status SMALLINT DEFAULT 0 CHECK (status IN (-1, 0, 1)),
+		views INTEGER DEFAULT 0,
 		created_at TIMESTAMP DEFAULT now(),
 		updated_at TIMESTAMP DEFAULT now()
 	)`

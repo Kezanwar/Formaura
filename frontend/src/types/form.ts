@@ -3,6 +3,8 @@ export interface FormListing {
   uuid: string;
   name: string;
   description: string | null;
+  status: number;
+  views: number;
   created_at: string; // ISO date string
   updated_at: string; // ISO date string
   affiliates: AffiliateInfo[];
@@ -21,6 +23,8 @@ export interface Form {
   name: string;
   description: string | null;
   form_data: FormData;
+  status: number;
+  views: number;
   created_at: string;
   updated_at: string;
 }

@@ -2,7 +2,22 @@ import { Typography } from '@app/components/ui/typography';
 import useFormListingQuery from '@app/hooks/queries/use-form-listing-query';
 import { DataTable } from '@app/components/data-table';
 import { SortableHeader, TableHeaderWithIcon } from '@app/components/ui/table';
-import { ChartSpline, ToggleLeft, Users, Layers } from 'lucide-react';
+import {
+  ChartSpline,
+  ToggleLeft,
+  Users,
+  Layers,
+  Pencil,
+  Trash,
+  MoreVertical
+} from 'lucide-react';
+import { Button } from '@app/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@app/components/ui/dropdown-menu';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
   Avatar,
@@ -11,6 +26,8 @@ import {
   getInitials
 } from '@app/components/ui/avatar';
 import { observer } from 'mobx-react-lite';
+import { useNavigate } from 'react-router';
+import { useCallback } from 'react';
 
 type Affiliate = {
   uuid: string;
@@ -158,6 +175,34 @@ const columns: ColumnDef<DummyData>[] = [
         </div>
       );
     }
+  },
+  {
+    id: 'actions',
+    // header: () => <div className="text-right pr-2">Actions</div>,
+    cell: () => {
+      return (
+        <div className="text-right">
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button variant="ghost" size="icon">
+                <MoreVertical size={16} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => console.log('Edit clicked')}>
+                <Pencil size={16} />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => console.log('Delete clicked')}>
+                <Trash size={16} />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      );
+    },
+    size: 80
   }
 ];
 
@@ -166,10 +211,16 @@ const ManageForms = observer(() => {
 
   console.log(data?.data);
 
+  const nav = useNavigate();
+
+  const onRowClick = useCallback((row: DummyData) => {
+    nav(`forms/${row.id}/view`);
+  }, []);
+
   return (
     <div className="space-y-4">
       <Typography variant={'h2'}>Manage Forms</Typography>
-      <DataTable columns={columns} data={dummyData} />
+      <DataTable onRowClick={onRowClick} columns={columns} data={dummyData} />
     </div>
   );
 });

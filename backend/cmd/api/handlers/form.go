@@ -9,7 +9,6 @@ import (
 	form_repo "formaura/pkg/repositories/form"
 	"formaura/pkg/validate"
 	"net/http"
-	"time"
 )
 
 type FormHandler struct {
@@ -30,7 +29,7 @@ func NewFormHandler(
 }
 
 type GetListingResponse struct {
-	Forms *[]*form_repo.ListingModel `json:"forms"`
+	Forms *[]*form_repo.FormModel `json:"forms"`
 }
 
 type GetFormResponse struct {
@@ -43,8 +42,6 @@ func (h *FormHandler) GetDetailedListing(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		return http.StatusUnauthorized, fmt.Errorf("Unauthorized")
 	}
-
-	time.Sleep(2 * time.Second)
 
 	listing, err := h.FormRepo.GetDetailedListingByUserID(r.Context(), usr.ID)
 
@@ -69,6 +66,8 @@ func (h *FormHandler) NewForm(w http.ResponseWriter, r *http.Request) (int, erro
 	if err != nil {
 		return http.StatusInternalServerError, fmt.Errorf("Unable to create a new form")
 	}
+
+	// time.Sleep(time.Second * 3)
 
 	newTitle := form_repo.GenerateFormUntitledName(listing)
 
@@ -192,6 +191,22 @@ func (h *FormHandler) UpdateFormAffiliates(w http.ResponseWriter, r *http.Reques
 	return output.SuccessResponse(w, r, &AutoAuthResp{
 		User: usr,
 	})
+}
+
+func (h *FormHandler) IncrementViews(w http.ResponseWriter, r *http.Request) (int, error) {
+	formUuid, err := GetUUIDFromParams(r)
+
+	if err != nil {
+		return http.StatusBadRequest, err
+	}
+
+	err = h.FormRepo.IncrementViews(r.Context(), *formUuid)
+
+	if err != nil {
+		return http.StatusNotFound, fmt.Errorf("Resource not found")
+	}
+
+	return output.SuccessResponse(w, r, nil)
 }
 
 func (h *FormHandler) DeleteForm(w http.ResponseWriter, r *http.Request) (int, error) {

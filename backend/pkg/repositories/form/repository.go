@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"formaura/pkg/util"
 	"time"
 
 	"github.com/georgysavva/scany/pgxscan"
@@ -16,8 +15,9 @@ type Repository interface {
 	GetByUUID(ctx context.Context, uuid string) (*FormModel, error)
 	GetByID(ctx context.Context, id int) (*FormModel, error)
 	GetBasicListingByUserID(ctx context.Context, id int) ([]*FormModel, error)
-	GetDetailedListingByUserID(ctx context.Context, id int) ([]*ListingModel, error)
+	GetDetailedListingByUserID(ctx context.Context, id int) ([]*FormModel, error)
 	UpdateFormMeta(ctx context.Context, id int, name, description string) (*FormModel, error)
+	IncrementViews(ctx context.Context, uuid string) error
 	Delete(ctx context.Context, uuid string) error
 }
 
@@ -48,8 +48,6 @@ func (r *FormRepository) Create(ctx context.Context, user_id int, name string, d
 
 	err = pgxscan.Get(ctx, r.db, &form, query, user_id, name, description, formDataJSON, now, now)
 
-	util.PrintStruct(form)
-
 	if err != nil {
 		return nil, fmt.Errorf("form.Create query: %w", err)
 	}
@@ -61,9 +59,25 @@ func (r *FormRepository) GetByUUID(ctx context.Context, uuid string) (*FormModel
 	var form FormModel
 
 	query := `
-	SELECT * 
-	FROM forms 
-	WHERE uuid=$1`
+	SELECT
+		f.*,
+		COALESCE(
+			jsonb_agg(
+				jsonb_build_object(
+					'uuid', a.uuid,
+					'first_name', a.first_name,
+					'last_name', a.last_name
+				)
+			) FILTER (WHERE a.uuid IS NOT NULL),
+			'[]'::jsonb
+		) as affiliates,
+		COUNT(DISTINCT fs.id) as submission_count
+	FROM forms f
+	LEFT JOIN form_affiliates fa ON f.id = fa.form_id
+	LEFT JOIN affiliates a ON fa.affiliate_id = a.id
+	LEFT JOIN form_submissions fs ON f.id = fs.form_id
+	WHERE f.uuid=$1
+	GROUP BY f.id`
 
 	err := pgxscan.Get(ctx, r.db, &form, query, uuid)
 	if err != nil {
@@ -77,9 +91,25 @@ func (r *FormRepository) GetByID(ctx context.Context, id int) (*FormModel, error
 	var form FormModel
 
 	query := `
-	SELECT * 
-	FROM forms 
-	WHERE id=$1`
+	SELECT
+		f.*,
+		COALESCE(
+			jsonb_agg(
+				jsonb_build_object(
+					'uuid', a.uuid,
+					'first_name', a.first_name,
+					'last_name', a.last_name
+				)
+			) FILTER (WHERE a.uuid IS NOT NULL),
+			'[]'::jsonb
+		) as affiliates,
+		COUNT(DISTINCT fs.id) as submission_count
+	FROM forms f
+	LEFT JOIN form_affiliates fa ON f.id = fa.form_id
+	LEFT JOIN affiliates a ON fa.affiliate_id = a.id
+	LEFT JOIN form_submissions fs ON f.id = fs.form_id
+	WHERE f.id=$1
+	GROUP BY f.id`
 
 	err := pgxscan.Get(ctx, r.db, &form, query, id)
 	if err != nil {
@@ -93,8 +123,8 @@ func (r *FormRepository) GetBasicListingByUserID(ctx context.Context, id int) ([
 	forms := []*FormModel{}
 
 	query := `
-	SELECT uuid, name, description, created_at, updated_at 
-	FROM forms 
+	SELECT uuid, name, description, status, views, created_at, updated_at
+	FROM forms
 	WHERE user_id = $1
 	ORDER BY created_at DESC`
 
@@ -106,14 +136,16 @@ func (r *FormRepository) GetBasicListingByUserID(ctx context.Context, id int) ([
 	return forms, nil
 }
 
-func (r *FormRepository) GetDetailedListingByUserID(ctx context.Context, id int) ([]*ListingModel, error) {
-	forms := []*ListingModel{}
+func (r *FormRepository) GetDetailedListingByUserID(ctx context.Context, id int) ([]*FormModel, error) {
+	forms := []*FormModel{}
 
 	query := `
-	SELECT 
+	SELECT
 	f.uuid,
 	f.name,
 	f.description,
+	f.status,
+	f.views,
 	f.created_at,
 	f.updated_at,
 	COALESCE(
@@ -132,7 +164,7 @@ func (r *FormRepository) GetDetailedListingByUserID(ctx context.Context, id int)
 	LEFT JOIN affiliates a ON fa.affiliate_id = a.id
 	LEFT JOIN form_submissions fs ON f.id = fs.form_id
 	WHERE f.user_id = $1
-	GROUP BY f.id, f.uuid, f.name, f.description, f.created_at, f.updated_at
+	GROUP BY f.id, f.uuid, f.name, f.description, f.status, f.views, f.created_at, f.updated_at
 	ORDER BY f.created_at DESC`
 
 	err := pgxscan.Select(ctx, r.db, &forms, query, id)
@@ -187,6 +219,17 @@ func (r *FormRepository) UpdateFormData(ctx context.Context, uuid, name, descrip
 	}
 
 	return &form, nil
+}
+
+func (r *FormRepository) IncrementViews(ctx context.Context, uuid string) error {
+	query := `UPDATE forms SET views = views + 1 WHERE uuid=$1`
+
+	_, err := r.db.Exec(ctx, query, uuid)
+	if err != nil {
+		return fmt.Errorf("form.IncrementViews: %w", err)
+	}
+
+	return nil
 }
 
 func (r *FormRepository) Delete(ctx context.Context, uuid string) error {

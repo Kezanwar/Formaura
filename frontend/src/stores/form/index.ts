@@ -1,6 +1,6 @@
-import { makeObservable, observable, action, computed } from 'mobx';
+import { makeObservable, observable, action } from 'mobx';
 import { RootStore } from '@app/stores/index';
-import type { Form, Step, Input } from '@app/types/form';
+import type { Form } from '@app/types/form';
 import { getSingleForm } from '@app/api/form';
 import { errorHandler, type ErrorObject } from '@app/lib/axios';
 

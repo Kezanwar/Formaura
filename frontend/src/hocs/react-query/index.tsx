@@ -1,8 +1,8 @@
 import { type FC, type ReactNode } from 'react';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { IS_DEV } from '@app/config';
+// import { IS_DEV } from '@app/config';
 
 export const queryClient = new QueryClient();
 
