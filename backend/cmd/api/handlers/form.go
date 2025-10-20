@@ -129,6 +129,7 @@ func (h *FormHandler) UpdateFormData(w http.ResponseWriter, r *http.Request) (in
 type UpdateFormMetaReqBody struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Status      *int16 `json:"status"`
 }
 
 func (r *UpdateFormMetaReqBody) validate() error {
@@ -170,7 +171,7 @@ func (h *FormHandler) UpdateFormMeta(w http.ResponseWriter, r *http.Request) (in
 		return http.StatusForbidden, fmt.Errorf("Resource not found")
 	}
 
-	updated, err := h.FormRepo.UpdateFormMeta(r.Context(), form.ID, body.Name, body.Description)
+	updated, err := h.FormRepo.UpdateFormMeta(r.Context(), form.ID, body.Name, body.Description, body.Status)
 
 	if err != nil {
 		return http.StatusForbidden, fmt.Errorf("Resource not found")
