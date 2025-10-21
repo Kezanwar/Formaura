@@ -17,7 +17,7 @@ type FormModel struct {
 	CreatedAt       time.Time       `json:"created_at" db:"created_at"`
 	UpdatedAt       time.Time       `json:"updated_at" db:"updated_at"`
 	Affiliates      json.RawMessage `json:"affiliates,omitempty" db:"affiliates"`
-	SubmissionCount int             `json:"submission_count,omitempty" db:"submission_count"`
+	SubmissionCount int             `json:"submission_count" db:"submission_count"`
 }
 
 const (

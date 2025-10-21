@@ -1,13 +1,11 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	user_memory_cache "formaura/pkg/cache/user_memory"
 	"formaura/pkg/email"
 	"formaura/pkg/output"
 	form_repo "formaura/pkg/repositories/form"
-	"formaura/pkg/util"
 	"formaura/pkg/validate"
 	"net/http"
 )
@@ -154,11 +152,10 @@ func (h *FormHandler) UpdateFormMeta(w http.ResponseWriter, r *http.Request) (in
 
 	var body UpdateFormMetaReqBody
 
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	if err := DecodeBody(r, &body); err != nil {
 		return http.StatusBadRequest, err
 	}
 
-	util.PrintStruct(body)
 	if err := body.validate(); err != nil {
 		return http.StatusBadRequest, err
 	}

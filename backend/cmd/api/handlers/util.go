@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"formaura/pkg/constants"
 	user_repo "formaura/pkg/repositories/user"
@@ -34,4 +35,8 @@ func GetUUIDFromParams(r *http.Request) (*string, error) {
 
 	return &formUuid, nil
 
+}
+
+func DecodeBody(r *http.Request, dst any) error {
+	return json.NewDecoder(r.Body).Decode(dst)
 }

@@ -10,7 +10,6 @@ import (
 	"formaura/pkg/output"
 	"formaura/pkg/validate"
 
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -79,7 +78,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) (int, err
 	defer r.Body.Close()
 
 	var body RegisterReqBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	if err := DecodeBody(r, &body); err != nil {
 		return http.StatusBadRequest, err
 	}
 	if err := body.validate(); err != nil {
@@ -133,7 +132,8 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) (int, error
 	defer r.Body.Close()
 
 	var body SignInReqBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+
+	if err := DecodeBody(r, &body); err != nil {
 		return http.StatusBadRequest, err
 	}
 	if err := body.validate(); err != nil {
@@ -174,25 +174,21 @@ func (h *AuthHandler) Initialize(w http.ResponseWriter, r *http.Request) (int, e
 }
 
 func (h *AuthHandler) ConfirmOTP(w http.ResponseWriter, r *http.Request) (int, error) {
-	// Get user from context
 	usr, err := GetUserFromCtx(r)
 	if err != nil {
 		return http.StatusUnauthorized, fmt.Errorf("Unauthorized")
 	}
 
-	// Get OTP from URL parameter
 	vars := mux.Vars(r)
 	otpParam := vars["otp"]
 	if otpParam == "" {
 		return http.StatusBadRequest, fmt.Errorf("OTP parameter is required")
 	}
 
-	// Validate OTP
 	if !usr.ValidateOTP(otpParam) {
 		return http.StatusBadRequest, fmt.Errorf("Invalid OTP")
 	}
 
-	// Update user's email_confirmed status
 	usr.EmailConfirmed = true
 	err = h.UserRepo.UpdateEmailConfirmed(r.Context(), usr.UUID, true)
 	if err != nil {
@@ -207,38 +203,39 @@ func (h *AuthHandler) ConfirmOTP(w http.ResponseWriter, r *http.Request) (int, e
 }
 
 func (h *AuthHandler) ResendOTP(w http.ResponseWriter, r *http.Request) (int, error) {
-	// Get user from context
+
 	usr, err := GetUserFromCtx(r)
 	if err != nil {
 		return http.StatusUnauthorized, fmt.Errorf("Unauthorized")
 	}
 
-	// Check if email is already confirmed
 	if usr.EmailConfirmed {
 		return http.StatusBadRequest, fmt.Errorf("Email already confirmed")
 	}
 
-	// Generate new OTP
 	newOTP, err := otp.Generate()
 	if err != nil {
 		return http.StatusInternalServerError, fmt.Errorf("failed to generate OTP: %w", err)
 	}
 
-	// Update user's OTP in database
 	err = h.UserRepo.UpdateOTP(r.Context(), usr.UUID, newOTP)
 	if err != nil {
 		return http.StatusInternalServerError, fmt.Errorf("failed to update OTP: %w", err)
 	}
 
-	// Send new OTP email
-	err = h.emailClient.SendOTP(email.OTPEmailData{
-		ToEmail: usr.Email,
-		ToName:  fmt.Sprintf("%s %s", usr.FirstName, usr.LastName),
-		OTPCode: newOTP,
-	})
-	if err != nil {
-		return http.StatusInternalServerError, fmt.Errorf("failed to send OTP email: %w", err)
-	}
+	// TODO: rmv this
+	fmt.Println(newOTP)
+
+	// TODO: bring back email
+	// // Send new OTP email
+	// err = h.emailClient.SendOTP(email.OTPEmailData{
+	// 	ToEmail: usr.Email,
+	// 	ToName:  fmt.Sprintf("%s %s", usr.FirstName, usr.LastName),
+	// 	OTPCode: newOTP,
+	// })
+	// if err != nil {
+	// 	return http.StatusInternalServerError, fmt.Errorf("failed to send OTP email: %w", err)
+	// }
 
 	// Clear cache to force fresh user data on next request
 	h.authCache.Delete(usr.UUID)
