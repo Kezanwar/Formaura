@@ -7,6 +7,7 @@ import (
 	"formaura/pkg/email"
 	"formaura/pkg/output"
 	form_repo "formaura/pkg/repositories/form"
+	"formaura/pkg/util"
 	"formaura/pkg/validate"
 	"net/http"
 )
@@ -129,13 +130,18 @@ func (h *FormHandler) UpdateFormData(w http.ResponseWriter, r *http.Request) (in
 type UpdateFormMetaReqBody struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	Status      *int16 `json:"status"`
+	Status      string `json:"status"`
 }
 
 func (r *UpdateFormMetaReqBody) validate() error {
-	if !validate.StrNotEmpty(r.Name) {
+	if !validate.StrNotEmpty(r.Name, r.Status) {
 		return fmt.Errorf("Request body invalid")
 	}
+
+	if !validate.IsValidStatus(r.Status) {
+		return fmt.Errorf("Invalid status value")
+	}
+
 	return nil
 }
 
@@ -151,6 +157,8 @@ func (h *FormHandler) UpdateFormMeta(w http.ResponseWriter, r *http.Request) (in
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		return http.StatusBadRequest, err
 	}
+
+	util.PrintStruct(body)
 	if err := body.validate(); err != nil {
 		return http.StatusBadRequest, err
 	}

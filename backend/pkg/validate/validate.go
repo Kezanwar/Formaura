@@ -2,15 +2,13 @@ package validate
 
 import (
 	"regexp"
+	"slices"
+
+	form_repo "formaura/pkg/repositories/form"
 )
 
 func StrNotEmpty(s ...string) bool {
-	for _, v := range s {
-		if v == "" {
-			return false
-		}
-	}
-	return true
+	return !slices.Contains(s, "")
 }
 
 var hex_colour_regex = regexp.MustCompile(`^#(?:[0-9a-fA-F]{5})$`)
@@ -29,4 +27,8 @@ var testUUID = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-7][0-9a-fA-
 
 func ValidateUUID(uuid string) bool {
 	return testUUID.MatchString(uuid)
+}
+
+func IsValidStatus(status string) bool {
+	return slices.Contains(form_repo.ValidStatuses, status)
 }

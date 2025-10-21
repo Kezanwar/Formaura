@@ -12,13 +12,21 @@ type FormModel struct {
 	Name            string          `json:"name" db:"name"`
 	Description     *string         `json:"description" db:"description"`
 	FormData        json.RawMessage `json:"form_data,omitempty" db:"form_data"` // Use json.RawMessage for JSONB
-	Status          int16           `json:"status" db:"status"`
+	Status          string          `json:"status" db:"status"`
 	Views           int             `json:"views" db:"views"`
 	CreatedAt       time.Time       `json:"created_at" db:"created_at"`
 	UpdatedAt       time.Time       `json:"updated_at" db:"updated_at"`
 	Affiliates      json.RawMessage `json:"affiliates,omitempty" db:"affiliates"`
 	SubmissionCount int             `json:"submission_count,omitempty" db:"submission_count"`
 }
+
+const (
+	StatusInactive = "inactive"
+	StatusDraft    = "draft"
+	StatusActive   = "active"
+)
+
+var ValidStatuses = []string{StatusInactive, StatusDraft, StatusActive}
 
 // Helper method to unmarshal FormData into a specific struct
 func (m *FormModel) UnmarshalFormData(v interface{}) error {
