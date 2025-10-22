@@ -15,6 +15,5 @@ func FormRoutes(r *mux.Router, h *handlers.FormHandler, authCached middleware.Mi
 	output.MakeRoute(r, "/update/{uuid}/data", h.UpdateFormData, authCached).Methods("PUT", "OPTIONS")
 	output.MakeRoute(r, "/update/{uuid}/meta", h.UpdateFormMeta, authCached).Methods("PUT", "OPTIONS")
 	output.MakeRoute(r, "/update/{uuid}/affiliates", h.UpdateFormAffiliates, authCached).Methods("PUT", "OPTIONS")
-	output.MakeRoute(r, "/update/{uuid}/views", h.IncrementViews).Methods("POST", "OPTIONS")
 	output.MakeRoute(r, "/delete/{uuid}", h.DeleteForm, authCached).Methods("DELETE", "OPTIONS")
 }

@@ -199,22 +199,6 @@ func (h *FormHandler) UpdateFormAffiliates(w http.ResponseWriter, r *http.Reques
 	})
 }
 
-func (h *FormHandler) IncrementViews(w http.ResponseWriter, r *http.Request) (int, error) {
-	formUuid, err := GetUUIDFromParams(r)
-
-	if err != nil {
-		return http.StatusBadRequest, err
-	}
-
-	err = h.FormRepo.IncrementViews(r.Context(), *formUuid)
-
-	if err != nil {
-		return http.StatusNotFound, fmt.Errorf("Resource not found")
-	}
-
-	return output.SuccessResponse(w, r, nil)
-}
-
 func (h *FormHandler) DeleteForm(w http.ResponseWriter, r *http.Request) (int, error) {
 	usr, err := GetUserFromCtx(r)
 

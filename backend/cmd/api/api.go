@@ -37,6 +37,7 @@ func NewAPI(ctx context.Context, pool *pgxpool.Pool, client *http.Client) (*http
 	//handlers
 	authHandlers := handlers.NewAuthHandler(userRepo, userCache, emailClient)
 	formHandlers := handlers.NewFormHandler(formRepo, userCache, emailClient)
+	submissionHandlers := handlers.NewSubmissionHandler(formRepo, emailClient)
 
 	authFresh := middleware.AuthAlwaysFreshMiddleware(userRepo, userCache)
 	authCached := middleware.AuthCachedMiddleware(userRepo, userCache)
@@ -53,6 +54,7 @@ func NewAPI(ctx context.Context, pool *pgxpool.Pool, client *http.Client) (*http
 		//handlers
 		authHandlers,
 		formHandlers,
+		submissionHandlers,
 		//middleware
 		authFresh,
 		authCached,

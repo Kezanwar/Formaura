@@ -224,7 +224,11 @@ func (r *FormRepository) UpdateFormData(ctx context.Context, uuid, name, descrip
 }
 
 func (r *FormRepository) IncrementViews(ctx context.Context, uuid string) error {
-	query := `UPDATE forms SET views = views + 1 WHERE uuid=$1`
+	query := `
+	    UPDATE forms 
+	    SET views = views + 1 
+	    WHERE uuid=$1
+	`
 
 	_, err := r.db.Exec(ctx, query, uuid)
 	if err != nil {
