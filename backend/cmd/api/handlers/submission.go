@@ -37,7 +37,15 @@ func (h *SubmissionHandler) GetForm(w http.ResponseWriter, r *http.Request) (int
 		return http.StatusNotFound, fmt.Errorf("Resource not found")
 	}
 
-	go h.FormRepo.IncrementViews(context.Background(), *formUuid)
+	if form.Status != form_repo.StatusActive {
+		return http.StatusForbidden, fmt.Errorf("This form is currently unavailable")
+	}
+
+	err = h.FormRepo.IncrementViews(context.Background(), *formUuid)
+
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("Unable to view form, please try again later")
+	}
 
 	return output.SuccessResponse(w, r, &GetFormResponse{
 		Form: form,
